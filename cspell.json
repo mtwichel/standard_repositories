@@ -1,0 +1,55 @@
+{
+  "version": "0.2",
+  "dictionaries": [
+    "en_US",
+    "softwareTerms",
+    "dart_dictionary",
+    "dev_dictionary",
+    "people_usernames",
+    "words_dictionary"
+  ],
+  "dictionaryDefinitions": [
+    {
+      "name": "dart_dictionary",
+      "path": "./.cspell/dart_dictionary.txt",
+      "addWords": true
+    },
+    {
+      "name": "dev_dictionary",
+      "path": "./.cspell/dev_dictionary.txt",
+      "addWords": true
+    },
+    {
+      "name": "people_usernames",
+      "path": "./.cspell/people_usernames.txt",
+      "addWords": true
+    },
+    {
+      "name": "words_dictionary",
+      "path": "./.cspell/words_dictionary.txt",
+      "addWords": true
+    }
+  ],
+  "words": [],
+  "ignoreWords": [],
+  "ignorePaths": [
+    ".github/workflows/**",
+    "**/ios/**",
+    "**/macos/**",
+    "**/web/**",
+    "**/windows/**",
+    "**/android/**",
+    "**/linux/**",
+    "**/*.svg",
+    "**/*.otf",
+    "**/build/**",
+    "**/.gitignore",
+    "lib/main/firebase_options*.dart",
+    "firebase.json",
+    "**/pubspec.lock",
+    "env.json",
+    "dev.env.json",
+    "**/coverage/**"
+  ],
+  "import": []
+}
