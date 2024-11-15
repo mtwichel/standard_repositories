@@ -7,3 +7,7 @@ build/
 pubspec.lock
 coverage/
 .mason/
+
+# FVM Version Cache
+.fvm/
+.fvmrc
