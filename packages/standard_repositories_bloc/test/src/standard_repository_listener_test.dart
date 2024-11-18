@@ -25,6 +25,7 @@ class MyCubit extends Cubit<int> with StandardRepositoryListener {
       repository,
       // ignore: unnecessary_lambdas
       onData: (value) => emit(value),
+      where: (value) => value < 1000,
       onError: (error, stackTrace) => emit(-1),
       onSubscribe: () => emit(500),
     );
@@ -42,6 +43,9 @@ void main() {
       expect(cubit.state, equals(1));
       repository.testError(Error());
       await Future<void>.delayed(Duration(milliseconds: 50));
+      expect(cubit.state, equals(-1));
+      repository.testSet(1000);
+      await Future<void>.delayed(Duration(milliseconds: 5));
       expect(cubit.state, equals(-1));
     });
   });
