@@ -1,5 +1,7 @@
 // ignore_for_file: public_member_api_docs
 
+import 'dart:async';
+
 import 'package:collection/collection.dart';
 import 'package:meta/meta.dart';
 import 'package:rxdart/subjects.dart';
@@ -13,12 +15,19 @@ abstract class Repository<T> {
     required T initialValue,
   }) : _cache = BehaviorSubject.seeded(initialValue);
 
-  @protected
-  set value(T value) => _cache.value = value;
   T get value => _cache.value;
   Stream<T> get stream => _cache.stream;
 
   final BehaviorSubject<T> _cache;
+
+  @protected
+  Future<void> setValue(FutureOr<T> Function() create) async {
+    try {
+      _cache.value = await create();
+    } catch (e) {
+      _cache.addError(e);
+    }
+  }
 }
 
 abstract class MultiRepository<T> extends Repository<Iterable<T>> {
@@ -37,7 +46,18 @@ abstract class MultiRepository<T> extends Repository<Iterable<T>> {
       .cast<T>();
 
   @protected
-  void add(T object) => value = {...value, object};
+  Future<void> addValue(FutureOr<T> Function() create) async {
+    await setValue(() async {
+      final newValue = await create();
+      return {...value, newValue};
+    });
+  }
+
   @protected
-  void addAll(Iterable<T> objects) => value = {...value, ...objects};
+  Future<void> addAllValues(FutureOr<Iterable<T>> Function() create) async {
+    await setValue(() async {
+      final newValues = await create();
+      return {...value, ...newValues};
+    });
+  }
 }
