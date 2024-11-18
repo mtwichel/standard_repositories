@@ -15,7 +15,7 @@ class MyRepository extends Repository<int> {
   }
 
   void testError(Error error) {
-   setValue(() => throw error);
+    setValue(() => throw error);
   }
 }
 
@@ -29,7 +29,6 @@ class MyCubit extends Cubit<int> with StandardRepositoryListener {
       onSubscribe: () => emit(500),
     );
   }
-
 }
 
 void main() {
@@ -43,7 +42,7 @@ void main() {
       expect(cubit.state, equals(1));
       repository.testError(Error());
       await Future<void>.delayed(Duration(milliseconds: 50));
-      expect(cubit.state, equals(-1));     
+      expect(cubit.state, equals(-1));
     });
   });
 }
