@@ -17,9 +17,14 @@ mixin StandardRepositoryListener<State> on BlocBase<State> {
     void Function()? onDone,
     bool? cancelOnError,
     Function? onSubscribe,
+    bool Function(T data)? where,
   }) {
+    var stream = repository.stream;
+    if (where != null) {
+      stream = stream.where(where);
+    }
     _subscriptions.add(
-      repository.stream.listen(
+      stream.listen(
         onData,
         onError: onError,
         onDone: onDone,
