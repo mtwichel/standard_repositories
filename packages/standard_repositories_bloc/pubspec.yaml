@@ -1,0 +1,20 @@
+name: standard_repositories_bloc
+description: A mixin that simplifies listening to streams in Blocs and Cubits
+version: 0.1.0+1
+publish_to: none
+
+environment:
+  sdk: ^3.5.0
+
+dependencies:
+  bloc: ^8.1.4
+  standard_repositories: ^0.0.1-dev.1
+
+dev_dependencies:
+  mocktail: ^1.0.4
+  test: ^1.25.8
+  very_good_analysis: ^6.0.0
+
+dependency_overrides:
+  standard_repositories:
+    path: ../standard_repositories

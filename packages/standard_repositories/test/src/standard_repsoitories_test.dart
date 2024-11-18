@@ -1,5 +1,6 @@
 // ignore_for_file: prefer_const_constructors, cascade_invocations,
 // ignore_for_file: invalid_use_of_protected_member
+
 import 'package:standard_repositories/standard_repositories.dart';
 import 'package:test/test.dart';
 
@@ -17,14 +18,16 @@ void main() {
       expect(MyTestingRepository(initialValue: 0), isA<Repository<int>>());
     });
 
-    test('setting value sets the value', () {
+    test('setting value sets the value', () async {
       final repository = MyTestingRepository(initialValue: 0);
-      repository.value = 1;
+      await repository.setValue(() => 1);
+      await Future<void>.delayed(Duration(milliseconds: 5));
       expect(repository.value, equals(1));
     });
-    test('setting value emits the value in stream', () {
+    test('setting value emits the value in stream', () async {
       final repository = MyTestingRepository(initialValue: 0);
-      repository.value = 1;
+      await repository.setValue(() => 1);
+      await Future<void>.delayed(Duration(milliseconds: 5));
       expect(repository.stream, emits(1));
     });
   });
@@ -42,10 +45,10 @@ void main() {
           [1, 3, 5],
         ]),
       );
-      repository.add(3);
-      repository.add(4);
-      repository.add(5);
-      repository.add(6);
+      repository.addValue(() => 3);
+      repository.addValue(() => 4);
+      repository.addValue(() => 5);
+      repository.addValue(() => 6);
     });
 
     test('singleWhere returns single element matching test', () {
@@ -59,11 +62,11 @@ void main() {
         repository.streamSingleWhere((e) => e.isOdd),
         emitsInOrder([1, 1, 1]),
       );
-      repository.add(4);
-      repository.add(6);
+      repository.addValue(() => 4);
+      repository.addValue(() => 6);
     });
 
-    test('add all emits the new value added to the set', () {
+    test('addValue emits the new value added to the set', () async {
       final repository = TestingMultiRepository(initialValue: [0, 1, 2]);
       expect(
         repository.stream,
@@ -72,10 +75,11 @@ void main() {
           [0, 1, 2, 4],
         ]),
       );
-      repository.add(4);
+      await repository.addValue(() => 4);
+      await Future<void>.delayed(Duration(milliseconds: 5));
       expect(repository.value, equals([0, 1, 2, 4]));
     });
-    test('add allAll emits the new value added to the set', () {
+    test('addAllValues emits the new value added to the set', () async {
       final repository = TestingMultiRepository(initialValue: [0, 1, 2]);
       expect(
         repository.stream,
@@ -84,7 +88,8 @@ void main() {
           [0, 1, 2, 4, 5, 6],
         ]),
       );
-      repository.addAll([4, 5, 6]);
+      await repository.addAllValues(() => [4, 5, 6]);
+      await Future<void>.delayed(Duration(milliseconds: 5));
       expect(repository.value, equals([0, 1, 2, 4, 5, 6]));
     });
   });
