@@ -24,9 +24,7 @@ abstract class Repository<T> {
           (event: initialValue, id: 0),
         ),
         _repositoryCacher = repositoryCacher {
-    _readValue().then((value) {
-      if (value != null) _cache.value = _createEvent(value);
-    });
+    _readValue();
   }
 
   final Random _random;
@@ -61,14 +59,13 @@ abstract class Repository<T> {
     } catch (_) {}
   }
 
-  Future<T?> _readValue() async {
+  Future<void> _readValue() async {
     try {
       final value = await _repositoryCacher.readValue(runtimeType.toString());
-      if (value == null) return null;
-      return fromJson(value);
-    } catch (_) {
-      return null;
-    }
+      if (value == null) return;
+      final parsed = fromJson(value);
+      _cache.value = _createEvent(parsed);
+    } catch (_) {}
   }
 }
 
