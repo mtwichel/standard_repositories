@@ -2,12 +2,12 @@ import 'dart:convert';
 
 import 'package:hive_ce/hive.dart';
 
-/// {@template repository_cacher}
+/// {@template repository_cache}
 /// An object that can cache repository values for quick retrieval,
 /// ideally on device
 /// {@endtemplate}
-abstract class RepositoryCache<T> {
-  /// {@macro repository_cacher}
+abstract class RepositoryCache {
+  /// {@macro repository_cache}
   const RepositoryCache();
 
   /// Writes the value to the cache
@@ -17,12 +17,12 @@ abstract class RepositoryCache<T> {
   Future<Map<String, dynamic>?> readValue(String repositoryName);
 }
 
-/// {@template hive_repository_cacher}
+/// {@template hive_repository_cache}
 /// A [RepositoryCache] that stores values on device with [Hive]
 /// {@endtemplate}
-class HiveRepositoryCacher<T> extends RepositoryCache<T> {
-  /// {@macro hive_repository_cacher}
-  const HiveRepositoryCacher({
+class HiveRepositoryCache extends RepositoryCache {
+  /// {@macro hive_repository_cache}
+  const HiveRepositoryCache({
     String boxName = '_standard_repositories_cache',
   }) : _boxName = boxName;
 
@@ -52,11 +52,11 @@ class HiveRepositoryCacher<T> extends RepositoryCache<T> {
   }
 }
 
-/// {@template noop_repository_cacher}
+/// {@template noop_repository_cache}
 /// A repository cacher that does nothing.
 /// {@endtemplate}
-class NoopRepositoryCacher<T> extends RepositoryCache<T> {
-  /// {@macro noop_repository_cacher}
+class NoopRepositoryCacher extends RepositoryCache {
+  /// {@macro noop_repository_cache}
   const NoopRepositoryCacher();
 
   @override

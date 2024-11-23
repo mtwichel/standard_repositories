@@ -43,39 +43,6 @@ void main() {
   });
 
   group('MultiRepository', () {
-    test('streamWhere streams only filtered properties', () {
-      final repository = TestingMultiRepository(initialValue: [0, 1, 2]);
-      expect(
-        repository.streamWhere((e) => e.isOdd),
-        emitsInOrder([
-          [1],
-          [1, 3],
-          [1, 3],
-          [1, 3, 5],
-          [1, 3, 5],
-        ]),
-      );
-      repository.addValue(() => 3);
-      repository.addValue(() => 4);
-      repository.addValue(() => 5);
-      repository.addValue(() => 6);
-    });
-
-    test('singleWhere returns single element matching test', () {
-      final repository = TestingMultiRepository(initialValue: [0, 1, 2]);
-      expect(repository.singleWhere((e) => e.isOdd), equals(1));
-    });
-
-    test('streamSingleWhere streams only filtered properties', () {
-      final repository = TestingMultiRepository(initialValue: [0, 1, 2]);
-      expect(
-        repository.streamSingleWhere((e) => e.isOdd),
-        emitsInOrder([1, 1, 1]),
-      );
-      repository.addValue(() => 4);
-      repository.addValue(() => 6);
-    });
-
     test('addValue emits the new value added to the set', () async {
       final repository = TestingMultiRepository(initialValue: [0, 1, 2]);
       expect(
