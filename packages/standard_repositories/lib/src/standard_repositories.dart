@@ -7,19 +7,17 @@ import 'package:meta/meta.dart';
 import 'package:rxdart/subjects.dart';
 import 'package:standard_repositories/standard_repositories.dart';
 
-typedef FromJson<T> = T Function(Map<String, dynamic> json);
-typedef ToJson<T> = Map<String, dynamic> Function(T object);
 typedef TestFunction<T> = bool Function(T object);
 
 typedef UniqueEvent<T> = ({T event, int id});
 
 abstract class Repository<T> {
   Repository({
-    required RepositoryCache repositoryCacher,
     required T initialValue,
-    required this.fromJson,
-    required this.toJson,
+    RepositoryCache? repositoryCacher,
+    RepositoryObjectAdapter<T>? adapter,
   })  : _random = Random(),
+        _adapter = adapter,
         _cache = BehaviorSubject.seeded(
           (event: initialValue, id: 0),
         ),
@@ -28,9 +26,8 @@ abstract class Repository<T> {
   }
 
   final Random _random;
-  final FromJson<T> fromJson;
-  final ToJson<T> toJson;
-  final RepositoryCache _repositoryCacher;
+  final RepositoryObjectAdapter<T>? _adapter;
+  final RepositoryCache? _repositoryCacher;
 
   UniqueEvent<T> _createEvent(T data) => (
         event: data,
@@ -54,16 +51,21 @@ abstract class Repository<T> {
   }
 
   Future<void> _writeValue(T value) async {
+    if (_adapter == null) return;
     try {
-      await _repositoryCacher.writeValue(runtimeType.toString(), toJson(value));
+      await _repositoryCacher?.writeValue(
+        runtimeType.toString(),
+        _adapter.toJson(value),
+      );
     } catch (_) {}
   }
 
   Future<void> _readValue() async {
+    if (_adapter == null) return;
     try {
-      final value = await _repositoryCacher.readValue(runtimeType.toString());
+      final value = await _repositoryCacher?.readValue(runtimeType.toString());
       if (value == null) return;
-      final parsed = fromJson(value);
+      final parsed = _adapter.fromJson(value);
       _cache.value = _createEvent(parsed);
     } catch (_) {}
   }
@@ -71,15 +73,19 @@ abstract class Repository<T> {
 
 abstract class MultiRepository<T> extends Repository<Iterable<T>> {
   MultiRepository({
-    required super.repositoryCacher,
-    required FromJson<T> fromJson,
-    required ToJson<T> toJson,
+    super.repositoryCacher,
+    RepositoryObjectAdapter<T>? adapter,
     super.initialValue = const {},
   }) : super(
-          fromJson: (json) =>
-              List<Map<String, dynamic>>.from(json['list'] as List<dynamic>)
-                  .map(fromJson),
-          toJson: (list) => {'list': list.map((e) => toJson(e)).toList()},
+          adapter: adapter == null
+              ? null
+              : RepositoryObjectAdapter(
+                  fromJson: (json) => List<Map<String, dynamic>>.from(
+                    json['list'] as List<dynamic>,
+                  ).map(adapter.fromJson),
+                  toJson: (list) =>
+                      {'list': list.map((e) => adapter.toJson(e)).toList()},
+                ),
         );
 
   @protected
