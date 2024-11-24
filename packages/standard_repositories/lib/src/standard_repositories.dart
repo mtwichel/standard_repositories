@@ -3,7 +3,6 @@
 import 'dart:async';
 import 'dart:math';
 
-import 'package:collection/collection.dart';
 import 'package:meta/meta.dart';
 import 'package:rxdart/subjects.dart';
 import 'package:standard_repositories/standard_repositories.dart';
@@ -16,7 +15,7 @@ typedef UniqueEvent<T> = ({T event, int id});
 
 abstract class Repository<T> {
   Repository({
-    required RepositoryCache<T> repositoryCacher,
+    required RepositoryCache repositoryCacher,
     required T initialValue,
     required this.fromJson,
     required this.toJson,
@@ -25,15 +24,13 @@ abstract class Repository<T> {
           (event: initialValue, id: 0),
         ),
         _repositoryCacher = repositoryCacher {
-    _readValue().then((value) {
-      if (value != null) _cache.value = _createEvent(value);
-    });
+    _readValue();
   }
 
   final Random _random;
   final FromJson<T> fromJson;
   final ToJson<T> toJson;
-  final RepositoryCache<T> _repositoryCacher;
+  final RepositoryCache _repositoryCacher;
 
   UniqueEvent<T> _createEvent(T data) => (
         event: data,
@@ -62,14 +59,13 @@ abstract class Repository<T> {
     } catch (_) {}
   }
 
-  Future<T?> _readValue() async {
+  Future<void> _readValue() async {
     try {
       final value = await _repositoryCacher.readValue(runtimeType.toString());
-      if (value == null) return null;
-      return fromJson(value);
-    } catch (_) {
-      return null;
-    }
+      if (value == null) return;
+      final parsed = fromJson(value);
+      _cache.value = _createEvent(parsed);
+    } catch (_) {}
   }
 }
 
@@ -85,17 +81,6 @@ abstract class MultiRepository<T> extends Repository<Iterable<T>> {
                   .map(fromJson),
           toJson: (list) => {'list': list.map((e) => toJson(e)).toList()},
         );
-
-  Stream<Iterable<T>> streamWhere(TestFunction<T> filter) => _cache.stream
-      .map((e) => e.event)
-      .map((all) => all.where((e) => filter(e)))
-      .where((e) => e.isNotEmpty);
-
-  T singleWhere(TestFunction<T> test) => value.singleWhere(test);
-  Stream<T> streamSingleWhere(TestFunction<T> test) => stream
-      .map((e) => e.singleWhereOrNull(test))
-      .where((e) => e != null)
-      .cast<T>();
 
   @protected
   Future<void> addValue(FutureOr<T> Function() create) async {
