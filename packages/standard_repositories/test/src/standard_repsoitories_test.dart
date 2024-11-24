@@ -8,8 +8,10 @@ class MyTestingRepository extends Repository<int> {
   MyTestingRepository({required super.initialValue})
       : super(
           repositoryCacher: NoopRepositoryCacher(),
-          fromJson: (json) => 0,
-          toJson: (object) => {},
+          adapter: RepositoryObjectAdapter(
+            fromJson: (json) => 0,
+            toJson: (object) => {},
+          ),
         );
 }
 
@@ -17,8 +19,10 @@ class TestingMultiRepository extends MultiRepository<int> {
   TestingMultiRepository({required super.initialValue})
       : super(
           repositoryCacher: NoopRepositoryCacher(),
-          fromJson: (json) => 0,
-          toJson: (object) => {},
+          adapter: RepositoryObjectAdapter(
+            fromJson: (json) => 0,
+            toJson: (object) => {},
+          ),
         );
 }
 

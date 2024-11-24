@@ -10,8 +10,10 @@ class MyRepository extends Repository<int> {
   MyRepository({required super.initialValue})
       : super(
           repositoryCacher: NoopRepositoryCacher(),
-          fromJson: (json) => 0,
-          toJson: (object) => {},
+          adapter: RepositoryObjectAdapter(
+            fromJson: (json) => 0,
+            toJson: (object) => {},
+          ),
         );
 
   // ignore: use_setters_to_change_properties
