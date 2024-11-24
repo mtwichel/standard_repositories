@@ -15,7 +15,8 @@ typedef FromJson<T> = T Function(Map<String, dynamic> json);
 typedef ToJson<T> = Map<String, dynamic> Function(T object);
 
 /// {@template repository_object_adapter}
-/// An adapter that helps convert objects to and from JSON for repository storage.
+/// An adapter that helps convert objects to and from JSON for repository
+/// storage.
 ///
 /// The [fromJson] function converts a JSON map back into the object type [T].
 /// The [toJson] function converts an object of type [T] into a JSON map.
