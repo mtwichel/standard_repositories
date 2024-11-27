@@ -34,7 +34,7 @@ void main() {
       final repository = MyTestingRepository(initialValue: 0);
       await repository.setValue(() => 1);
       await Future<void>.delayed(Duration(milliseconds: 5));
-      expect(repository.stream, emits(1));
+      expect(repository.stream(fetchedOnly: true), emits(1));
     });
   });
 
@@ -42,9 +42,8 @@ void main() {
     test('addValue emits the new value added to the set', () async {
       final repository = TestingMultiRepository(initialValue: [0, 1, 2]);
       expect(
-        repository.stream,
+        repository.stream(fetchedOnly: true),
         emitsInOrder([
-          [0, 1, 2],
           [0, 1, 2, 4],
         ]),
       );
@@ -55,9 +54,8 @@ void main() {
     test('addAllValues emits the new value added to the set', () async {
       final repository = TestingMultiRepository(initialValue: [0, 1, 2]);
       expect(
-        repository.stream,
+        repository.stream(fetchedOnly: true),
         emitsInOrder([
-          [0, 1, 2],
           [0, 1, 2, 4, 5, 6],
         ]),
       );
