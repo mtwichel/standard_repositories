@@ -8,13 +8,7 @@ import 'package:test/test.dart';
 
 class MyRepository extends Repository<int> {
   MyRepository({required super.initialValue})
-      : super(
-          repositoryCacher: NoopRepositoryCacher(),
-          adapter: RepositoryObjectAdapter(
-            fromJson: (json) => 0,
-            toJson: (object) => {},
-          ),
-        );
+      : super(repositoryCache: NoopRepositoryCacher());
 
   // ignore: use_setters_to_change_properties
   void testSet(int testValue) {
