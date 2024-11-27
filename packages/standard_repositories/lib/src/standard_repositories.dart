@@ -14,20 +14,17 @@ typedef UniqueEvent<T> = ({T event, int id});
 abstract class Repository<T> {
   Repository({
     required T initialValue,
-    RepositoryCache? repositoryCacher,
-    RepositoryObjectAdapter<T>? adapter,
+    RepositoryCache<T>? repositoryCache,
   })  : _random = Random(),
-        _adapter = adapter,
         _cache = BehaviorSubject.seeded(
           (event: initialValue, id: 0),
         ),
-        _repositoryCacher = repositoryCacher {
+        _repositoryCache = repositoryCache {
     _readValue();
   }
 
   final Random _random;
-  final RepositoryObjectAdapter<T>? _adapter;
-  final RepositoryCache? _repositoryCacher;
+  final RepositoryCache<T>? _repositoryCache;
 
   UniqueEvent<T> _createEvent(T data) => (
         event: data,
@@ -51,42 +48,25 @@ abstract class Repository<T> {
   }
 
   Future<void> _writeValue(T value) async {
-    if (_adapter == null) return;
     try {
-      await _repositoryCacher?.writeValue(
-        runtimeType.toString(),
-        _adapter.toJson(value),
-      );
+      await _repositoryCache?.writeValue(value);
     } catch (_) {}
   }
 
   Future<void> _readValue() async {
-    if (_adapter == null) return;
     try {
-      final value = await _repositoryCacher?.readValue(runtimeType.toString());
+      final value = await _repositoryCache?.readValue(runtimeType.toString());
       if (value == null) return;
-      final parsed = _adapter.fromJson(value);
-      _cache.value = _createEvent(parsed);
+      _cache.value = _createEvent(value);
     } catch (_) {}
   }
 }
 
 abstract class MultiRepository<T> extends Repository<Iterable<T>> {
   MultiRepository({
-    super.repositoryCacher,
-    RepositoryObjectAdapter<T>? adapter,
+    super.repositoryCache,
     super.initialValue = const {},
-  }) : super(
-          adapter: adapter == null
-              ? null
-              : RepositoryObjectAdapter(
-                  fromJson: (json) => List<Map<String, dynamic>>.from(
-                    json['list'] as List<dynamic>,
-                  ).map(adapter.fromJson),
-                  toJson: (list) =>
-                      {'list': list.map((e) => adapter.toJson(e)).toList()},
-                ),
-        );
+  });
 
   @protected
   Future<void> addValue(FutureOr<T> Function() create) async {

@@ -63,8 +63,12 @@ mixin StandardRepositoryListener<State> on BlocBase<State> {
             onDone: onDone,
             cancelOnError: cancelOnError,
           );
-      // ignore: avoid_dynamic_calls
-      onSubscribe?.call();
+      try {
+        // ignore: avoid_dynamic_calls
+        onSubscribe?.call();
+      } catch (error, stackTrace) {
+        onError?.call(error, stackTrace);
+      }
     }
   }
 
