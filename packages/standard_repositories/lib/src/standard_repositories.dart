@@ -9,7 +9,7 @@ import 'package:standard_repositories/standard_repositories.dart';
 
 typedef TestFunction<T> = bool Function(T object);
 
-typedef UniqueEvent<T> = ({T event, int id});
+typedef UniqueEvent<T> = ({T event, int id, bool fetched});
 
 abstract class Repository<T> {
   Repository({
@@ -17,7 +17,7 @@ abstract class Repository<T> {
     RepositoryCache<T>? repositoryCache,
   })  : _random = Random(),
         _cache = BehaviorSubject.seeded(
-          (event: initialValue, id: 0),
+          (event: initialValue, id: -1, fetched: false),
         ),
         _repositoryCache = repositoryCache {
     _readValue();
@@ -29,10 +29,17 @@ abstract class Repository<T> {
   UniqueEvent<T> _createEvent(T data) => (
         event: data,
         id: _random.nextInt(1000),
+        fetched: true,
       );
 
   T get value => _cache.value.event;
-  Stream<T> get stream => _cache.stream.map((e) => e.event);
+  Stream<T> stream({bool fetchedOnly = true}) {
+    Stream<UniqueEvent<T>> ans = _cache.stream;
+    if (fetchedOnly) {
+      ans = ans.where((e) => e.fetched);
+    }
+    return ans.map((e) => e.event);
+  }
 
   final BehaviorSubject<UniqueEvent<T>> _cache;
 
