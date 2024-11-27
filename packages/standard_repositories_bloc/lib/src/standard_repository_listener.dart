@@ -18,10 +18,11 @@ mixin StandardRepositoryListener<State> on BlocBase<State> {
     bool? cancelOnError,
     Function? onSubscribe,
     bool Function(T data)? where,
+    bool fetchedOnly = true,
   }) {
     final key = repository.runtimeType.toString();
     if (!_subscriptions.containsKey(key)) {
-      var stream = repository.stream;
+      var stream = repository.stream(fetchedOnly: fetchedOnly);
       if (where != null) {
         stream = stream.where(where);
       }
@@ -31,8 +32,12 @@ mixin StandardRepositoryListener<State> on BlocBase<State> {
         onDone: onDone,
         cancelOnError: cancelOnError,
       );
-      // ignore: avoid_dynamic_calls
-      onSubscribe?.call();
+      try {
+        // ignore: avoid_dynamic_calls
+        onSubscribe?.call();
+      } catch (error, stackTrace) {
+        onError?.call(error, stackTrace);
+      }
     }
   }
 
@@ -50,10 +55,11 @@ mixin StandardRepositoryListener<State> on BlocBase<State> {
     bool? cancelOnError,
     Function? onSubscribe,
     bool Function(Model data)? where,
+    bool fetchedOnly = true,
   }) {
     final key = repository.runtimeType.toString();
     if (!_subscriptions.containsKey(key)) {
-      var stream = repository.stream;
+      var stream = repository.stream(fetchedOnly: fetchedOnly);
       if (where != null) {
         stream = stream.where(where);
       }
