@@ -14,17 +14,14 @@ typedef UniqueEvent<T> = ({T event, int id, bool fetched});
 abstract class Repository<T> {
   Repository({
     required T initialValue,
-    RepositoryCache<T>? repositoryCache,
   })  : _random = Random(),
         _cache = BehaviorSubject.seeded(
           (event: initialValue, id: -1, fetched: false),
-        ),
-        _repositoryCache = repositoryCache {
+        ) {
     _readValue();
   }
 
   final Random _random;
-  final RepositoryCache<T>? _repositoryCache;
 
   @protected
   bool get fetched => _cache.value.fetched;
@@ -63,22 +60,25 @@ abstract class Repository<T> {
 
   Future<void> _writeValue(T value) async {
     try {
-      await _repositoryCache?.writeValue(value);
+      final cache = this as RepositoryCache<T>;
+      await cache.writeValue(value);
     } catch (_) {}
   }
 
   Future<void> _readValue() async {
-    try {
-      final value = await _repositoryCache?.readValue(runtimeType.toString());
-      if (value == null) return;
-      _cache.value = _createEvent(value);
-    } catch (_) {}
+    if (this is! RepositoryCache<T>) {
+      try {
+        final cache = this as RepositoryCache<T>;
+        final value = await cache.readValue(runtimeType.toString());
+        if (value == null) return;
+        _cache.value = _createEvent(value);
+      } catch (_) {}
+    }
   }
 }
 
 abstract class MultiRepository<T> extends Repository<Iterable<T>> {
   MultiRepository({
-    super.repositoryCache,
     super.initialValue = const {},
   });
 

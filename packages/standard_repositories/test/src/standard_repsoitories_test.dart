@@ -5,17 +5,11 @@ import 'package:standard_repositories/standard_repositories.dart';
 import 'package:test/test.dart';
 
 class MyTestingRepository extends Repository<int> {
-  MyTestingRepository({required super.initialValue})
-      : super(
-          repositoryCache: NoopRepositoryCacher(),
-        );
+  MyTestingRepository({required super.initialValue});
 }
 
 class TestingMultiRepository extends MultiRepository<int> {
-  TestingMultiRepository({required super.initialValue})
-      : super(
-          repositoryCache: NoopRepositoryCacher(),
-        );
+  TestingMultiRepository({required super.initialValue});
 }
 
 void main() {

@@ -7,8 +7,7 @@ import 'package:standard_repositories_bloc/standard_repositories_bloc.dart';
 import 'package:test/test.dart';
 
 class MyRepository extends Repository<int> {
-  MyRepository({required super.initialValue})
-      : super(repositoryCache: NoopRepositoryCacher());
+  MyRepository({required super.initialValue}) : super();
 
   // ignore: use_setters_to_change_properties
   void testSet(int testValue) {
