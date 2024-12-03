@@ -26,6 +26,9 @@ abstract class Repository<T> {
   final Random _random;
   final RepositoryCache<T>? _repositoryCache;
 
+  @protected
+  bool get fetched => _cache.value.fetched;
+
   UniqueEvent<T> _createEvent(T data) => (
         event: data,
         id: _random.nextInt(1000),
@@ -33,12 +36,16 @@ abstract class Repository<T> {
       );
 
   T get value => _cache.value.event;
-  Stream<T> stream({bool fetchedOnly = true}) {
+  Stream<T> stream({bool fetchedOnly = true}) async* {
     Stream<UniqueEvent<T>> ans = _cache.stream;
     if (fetchedOnly) {
       ans = ans.where((e) => e.fetched);
     }
-    return ans.map((e) => e.event);
+    yield* ans.map((e) => e.event);
+
+    if (!_cache.value.fetched && this is FetcherRepository) {
+      await (this as FetcherRepository).fetch();
+    }
   }
 
   final BehaviorSubject<UniqueEvent<T>> _cache;
