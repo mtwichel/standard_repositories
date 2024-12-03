@@ -59,6 +59,7 @@ abstract class Repository<T> {
   }
 
   Future<void> _writeValue(T value) async {
+    if (this is! RepositoryCache<T>) return;
     try {
       final cache = this as RepositoryCache<T>;
       await cache.writeValue(value);
@@ -66,14 +67,13 @@ abstract class Repository<T> {
   }
 
   Future<void> _readValue() async {
-    if (this is! RepositoryCache<T>) {
-      try {
-        final cache = this as RepositoryCache<T>;
-        final value = await cache.readValue(runtimeType.toString());
-        if (value == null) return;
-        _cache.value = _createEvent(value);
-      } catch (_) {}
-    }
+    if (this is! RepositoryCache<T>) return;
+    try {
+      final cache = this as RepositoryCache<T>;
+      final value = await cache.readValue(runtimeType.toString());
+      if (value == null) return;
+      _cache.value = _createEvent(value);
+    } catch (_) {}
   }
 }
 
