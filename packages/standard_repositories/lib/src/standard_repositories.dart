@@ -38,11 +38,10 @@ abstract class Repository<T> {
     if (fetchedOnly) {
       ans = ans.where((e) => e.fetched);
     }
-    yield* ans.map((e) => e.event);
-
     if (!_cache.value.fetched && this is FetcherRepository) {
       await (this as FetcherRepository).fetch();
     }
+    yield* ans.map((e) => e.event);
   }
 
   final BehaviorSubject<UniqueEvent<T>> _cache;
