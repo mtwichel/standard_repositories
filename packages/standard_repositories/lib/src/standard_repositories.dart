@@ -14,14 +14,19 @@ typedef UniqueEvent<T> = ({T event, int id, bool fetched});
 abstract class Repository<T> {
   Repository({
     required T initialValue,
+    bool fakeCache = false,
   })  : _random = Random(),
         _cache = BehaviorSubject.seeded(
           (event: initialValue, id: -1, fetched: false),
-        ) {
-    _readValue();
+        ),
+        _fakeCache = fakeCache {
+    if (!fakeCache) {
+      _readValue();
+    }
   }
 
   final Random _random;
+  final bool _fakeCache;
 
   @protected
   bool get fetched => _cache.value.fetched;
@@ -58,7 +63,7 @@ abstract class Repository<T> {
   }
 
   Future<void> _writeValue(T value) async {
-    if (this is! RepositoryCache<T>) return;
+    if (_fakeCache || this is! RepositoryCache<T>) return;
     try {
       final cache = this as RepositoryCache<T>;
       await cache.writeValue(value);
@@ -66,7 +71,7 @@ abstract class Repository<T> {
   }
 
   Future<void> _readValue() async {
-    if (this is! RepositoryCache<T>) return;
+    if (_fakeCache || this is! RepositoryCache<T>) return;
     try {
       final cache = this as RepositoryCache<T>;
       final value = await cache.readValue(runtimeType.toString());
