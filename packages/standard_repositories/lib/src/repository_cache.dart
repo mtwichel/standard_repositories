@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:hive_ce/hive.dart';
+import 'package:standard_repositories/standard_repositories.dart';
 
 /// A function type that converts a JSON map into an object of type [T].
 ///
@@ -23,9 +24,6 @@ typedef ToJson<T> = Map<String, dynamic> Function(T object);
 /// ideally on device
 /// {@endtemplate}
 abstract class RepositoryCache<T> {
-  /// {@macro repository_cache}
-  const RepositoryCache();
-
   /// Writes the value to the cache
   Future<void> writeValue(T value);
 
@@ -36,30 +34,20 @@ abstract class RepositoryCache<T> {
 /// {@template hive_repository_cache}
 /// A [RepositoryCache] that stores values on device with [Hive]
 /// {@endtemplate}
-class HiveRepositoryCache<T> extends RepositoryCache<T> {
-  /// {@macro hive_repository_cache}
-  const HiveRepositoryCache({
-    required String repositoryName,
-    required FromJson<T> fromJson,
-    required ToJson<T> toJson,
-    String boxName = '_standard_repositories_cache',
-  })  : _boxName = boxName,
-        _repositoryName = repositoryName,
-        _fromJson = fromJson,
-        _toJson = toJson;
+mixin HiveRepositoryCache<T> on Repository<T> implements RepositoryCache<T> {
+  static const String _boxName = '_standard_repositories_cache';
 
-  final String _boxName;
-  final String _repositoryName;
-  final FromJson<T> _fromJson;
-  final ToJson<T> _toJson;
+  /// Converts a json [Map] to a [T]
+  T fromJson(Map<String, dynamic> json);
+
+  /// Converts a [T] to a json [Map]
+  Map<String, dynamic> toJson(T value);
 
   @override
-  Future<void> writeValue(
-    T value,
-  ) async {
+  Future<void> writeValue(T value) async {
     try {
       final box = await Hive.openBox<String>(_boxName);
-      await box.put(_repositoryName, jsonEncode(_toJson(value)));
+      await box.put(runtimeType.toString(), jsonEncode(toJson(value)));
     } catch (_) {}
   }
 
@@ -70,25 +58,9 @@ class HiveRepositoryCache<T> extends RepositoryCache<T> {
       final value = box.get(repositoryName);
       if (value == null) return null;
       final json = Map<String, dynamic>.from(jsonDecode(value) as Map);
-      return _fromJson(json);
+      return fromJson(json);
     } catch (_) {
       return null;
     }
   }
-}
-
-/// {@template noop_repository_cache}
-/// A repository cacher that does nothing.
-/// {@endtemplate}
-class NoopRepositoryCacher<T> extends RepositoryCache<T> {
-  /// {@macro noop_repository_cache}
-  const NoopRepositoryCacher();
-
-  @override
-  Future<T?> readValue(String repositoryName) async => null;
-
-  @override
-  Future<void> writeValue(
-    T value,
-  ) async {}
 }
