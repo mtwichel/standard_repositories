@@ -1,6 +1,6 @@
 name: standard_repositories_bloc
 description: A mixin that simplifies listening to streams in Blocs and Cubits
-version: 0.1.0+1
+version: 0.1.0-dev.1
 publish_to: none
 
 environment:
