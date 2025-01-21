@@ -1,0 +1,12 @@
+name: standard_repository
+description: A new brick created with the Mason CLI.
+version: 0.1.0+1
+
+environment:
+  mason: ^0.1.0
+
+vars:
+  name:
+    type: string
+    description: Name of the data type
+    prompt: What is the data for this repository?
