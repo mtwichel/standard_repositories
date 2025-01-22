@@ -33,6 +33,7 @@ mixin StandardRepositoryListener<State> on BlocBase<State> {
         cancelOnError: cancelOnError,
       );
       try {
+        onData.call(repository.value);
         // ignore: avoid_dynamic_calls
         onSubscribe?.call();
       } catch (error, stackTrace) {
@@ -70,6 +71,7 @@ mixin StandardRepositoryListener<State> on BlocBase<State> {
             cancelOnError: cancelOnError,
           );
       try {
+        onData.call(selector(repository.value));
         // ignore: avoid_dynamic_calls
         onSubscribe?.call();
       } catch (error, stackTrace) {
