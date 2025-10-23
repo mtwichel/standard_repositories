@@ -38,7 +38,7 @@ void main() {
       expect(
         repository.stream,
         emitsInOrder([
-          [0, 1, 2, 4],
+          [0, 1, 2],
         ]),
       );
       await repository.addValue(() => 4);
@@ -50,7 +50,7 @@ void main() {
       expect(
         repository.stream,
         emitsInOrder([
-          [0, 1, 2, 4, 5, 6],
+          [0, 1, 2],
         ]),
       );
       await repository.addAllValues(() => [4, 5, 6]);

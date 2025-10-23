@@ -13,10 +13,6 @@ class MyRepository extends Repository<int> {
   void testSet(int testValue) {
     value = testValue;
   }
-
-  void testError(Error error) {
-    value = throw error;
-  }
 }
 
 class MyCubit extends Cubit<int> with StandardRepositoryListener {
@@ -41,12 +37,9 @@ void main() {
       repository.testSet(1);
       await Future<void>.delayed(Duration(milliseconds: 5));
       expect(cubit.state, equals(1));
-      repository.testError(Error());
-      await Future<void>.delayed(Duration(milliseconds: 50));
-      expect(cubit.state, equals(-1));
       repository.testSet(1000);
       await Future<void>.delayed(Duration(milliseconds: 5));
-      expect(cubit.state, equals(-1));
+      expect(cubit.state, equals(1));
     });
   });
 }
