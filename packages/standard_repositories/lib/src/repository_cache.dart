@@ -1,7 +1,7 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:hive_ce/hive.dart';
-import 'package:standard_repositories/standard_repositories.dart';
 
 /// A function type that converts a JSON map into an object of type [T].
 ///
@@ -25,37 +25,60 @@ typedef ToJson<T> = Map<String, dynamic> Function(T object);
 /// {@endtemplate}
 abstract class RepositoryCache<T> {
   /// Writes the value to the cache
-  Future<void> writeValue(T value);
+  Future<void> writeValue({required T value, required String repositoryName});
 
   /// Reads the value from the cache
-  Future<T?> readValue(String repositoryName);
+  FutureOr<T?> readValue(String repositoryName);
 }
 
 /// {@template hive_repository_cache}
 /// A [RepositoryCache] that stores values on device with [Hive]
 /// {@endtemplate}
-mixin HiveRepositoryCache<T> on Repository<T> implements RepositoryCache<T> {
-  static const String _boxName = '_standard_repositories_cache';
+class HiveRepositoryCache<T> implements RepositoryCache<T> {
+  /// {@macro hive_repository_cache}
+  HiveRepositoryCache({required this.fromJson, required this.toJson}) {
+    initialize();
+  }
+  late final Box<String> _box;
+  bool _initialized = false;
+
+  /// Initializes the cache
+  Future<void> initialize({
+    String boxName = '_standard_repositories_cache',
+  }) async {
+    _box = await Hive.openBox(boxName);
+    _initialized = true;
+  }
 
   /// Converts a json [Map] to a [T]
-  T fromJson(Map<String, dynamic> json);
+
+  final FromJson<T> fromJson;
 
   /// Converts a [T] to a json [Map]
-  Map<String, dynamic> toJson(T value);
+  final ToJson<T> toJson;
 
   @override
-  Future<void> writeValue(T value) async {
+  Future<void> writeValue({
+    required T value,
+    required String repositoryName,
+  }) async {
+    assert(
+      _initialized,
+      'HiveRepositoryCache must be initialized before writing a value',
+    );
     try {
-      final box = await Hive.openBox<String>(_boxName);
-      await box.put(runtimeType.toString(), jsonEncode(toJson(value)));
+      await _box.put(repositoryName, jsonEncode(toJson(value)));
     } catch (_) {}
   }
 
   @override
-  Future<T?> readValue(String repositoryName) async {
+  T? readValue(String repositoryName) {
+    assert(
+      _initialized,
+      'HiveRepositoryCache must be initialized before reading a value',
+    );
     try {
-      final box = await Hive.openBox<String>(_boxName);
-      final value = box.get(repositoryName);
+      final value = _box.get(repositoryName);
       if (value == null) return null;
       final json = Map<String, dynamic>.from(jsonDecode(value) as Map);
       return fromJson(json);

@@ -1,127 +1,71 @@
-// ignore_for_file: public_member_api_docs
-
 import 'dart:async';
 import 'dart:math';
 
-import 'package:meta/meta.dart';
 import 'package:rxdart/subjects.dart';
 import 'package:standard_repositories/standard_repositories.dart';
 
-typedef TestFunction<T> = bool Function(T object);
+/// A unique event with an id
+typedef UniqueEvent<T> = ({T event, int id});
 
-typedef UniqueEvent<T> = ({T event, int id, bool fetched});
-
+/// {@template repository}
+/// A repository that manages a single value
+/// {@endtemplate}
 abstract class Repository<T> {
+  /// {@macro repository}
   Repository({
     required T initialValue,
-    bool fakeCache = false,
-  })  : _random = Random(),
-        _cache = BehaviorSubject.seeded(
-          (event: initialValue, id: -1, fetched: false),
-        ),
-        _fakeCache = fakeCache {
-    if (!fakeCache) {
-      _readValue();
-    }
+    RepositoryCache<T>? cache,
+    String? repositoryName,
+  })  : _cache = cache,
+        _repositoryName = repositoryName,
+        _random = Random(),
+        _subject = BehaviorSubject.seeded(
+          (event: initialValue, id: -1),
+        ) {
+    _readValue();
   }
 
   final Random _random;
-  final bool _fakeCache;
-
-  @protected
-  bool get fetched => _cache.value.fetched;
+  final RepositoryCache<T>? _cache;
+  final BehaviorSubject<UniqueEvent<T>> _subject;
+  final String? _repositoryName;
 
   UniqueEvent<T> _createEvent(T data) => (
         event: data,
         id: _random.nextInt(1000),
-        fetched: true,
       );
 
-  T get value => _cache.value.event;
-  Stream<T> stream({bool fetchedOnly = true}) async* {
-    Stream<UniqueEvent<T>> ans = _cache.stream;
-    if (fetchedOnly) {
-      ans = ans.where((e) => e.fetched);
-    }
-    if (!_cache.value.fetched && this is FetcherRepository) {
-      await (this as FetcherRepository).fetch();
-    }
+  /// The current value of the repository
+  T get value => _subject.value.event;
+
+  /// The stream of the repository
+  Stream<T> get stream async* {
+    final Stream<UniqueEvent<T>> ans = _subject.stream;
+
     yield* ans.map((e) => e.event);
   }
 
-  final BehaviorSubject<UniqueEvent<T>> _cache;
-
-  @protected
-  Future<void> setValue(FutureOr<T> Function() create) async {
+  set value(T value) {
     try {
-      _cache.value = _createEvent(await create());
+      _subject.value = _createEvent(value);
+      unawaited(
+        _cache?.writeValue(
+          value: value,
+          repositoryName: _repositoryName ?? runtimeType.toString(),
+        ),
+      );
     } catch (e) {
-      _cache.addError(e);
-    } finally {
-      unawaited(_writeValue(value));
+      _subject.addError(e);
     }
   }
 
-  Future<void> _writeValue(T value) async {
-    if (_fakeCache || this is! RepositoryCache<T>) return;
-    try {
-      final cache = this as RepositoryCache<T>;
-      await cache.writeValue(value);
-    } catch (_) {}
-  }
-
   Future<void> _readValue() async {
-    if (_fakeCache || this is! RepositoryCache<T>) return;
     try {
-      final cache = this as RepositoryCache<T>;
-      final value = await cache.readValue(runtimeType.toString());
-      if (value == null) return;
-      _cache.value = _createEvent(value);
+      final value =
+          await _cache?.readValue(_repositoryName ?? runtimeType.toString());
+      if (value != null) {
+        _subject.add(_createEvent(value));
+      }
     } catch (_) {}
-  }
-}
-
-abstract class MultiRepository<T> extends Repository<Iterable<T>> {
-  MultiRepository({
-    super.initialValue = const {},
-  });
-
-  @protected
-  Future<void> addValue(FutureOr<T> Function() create) async {
-    await setValue(() async {
-      final newValue = await create();
-      return {...value, newValue};
-    });
-  }
-
-  @protected
-  Future<void> addAllValues(FutureOr<Iterable<T>> Function() create) async {
-    await setValue(() async {
-      final newValues = await create();
-      return {...value, ...newValues};
-    });
-  }
-
-  @protected
-  void removeValue(
-    bool Function(T datum) selector,
-  ) {
-    setValue(() {
-      final temp = value.where((e) => !selector(e));
-      return temp;
-    });
-  }
-
-  @protected
-  Future<void> replaceValue(
-    bool Function(T datum) selector,
-    FutureOr<T> Function(T current) create,
-  ) async {
-    await setValue(() async {
-      final temp = value.where((e) => !selector(e));
-      final current = value.firstWhere(selector);
-      final newValue = await create(current);
-      return {...temp, newValue};
-    });
   }
 }

@@ -11,11 +11,11 @@ class MyRepository extends Repository<int> {
 
   // ignore: use_setters_to_change_properties
   void testSet(int testValue) {
-    setValue(() => testValue);
+    value = testValue;
   }
 
   void testError(Error error) {
-    setValue(() => throw error);
+    value = throw error;
   }
 }
 

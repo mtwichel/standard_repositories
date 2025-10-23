@@ -22,7 +22,7 @@ mixin StandardRepositoryListener<State> on BlocBase<State> {
   }) {
     final key = repository.runtimeType.toString();
     if (!_subscriptions.containsKey(key)) {
-      var stream = repository.stream(fetchedOnly: fetchedOnly);
+      var stream = repository.stream;
       if (where != null) {
         stream = stream.where(where);
       }
@@ -60,7 +60,7 @@ mixin StandardRepositoryListener<State> on BlocBase<State> {
   }) {
     final key = repository.runtimeType.toString();
     if (!_subscriptions.containsKey(key)) {
-      var stream = repository.stream(fetchedOnly: fetchedOnly);
+      var stream = repository.stream;
       if (where != null) {
         stream = stream.where(where);
       }
