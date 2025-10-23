@@ -1,8 +1,8 @@
 # Standard Repositories
 
-[![secret_manager][ci_badge]][ci_link]
-[![coverage][coverage_badge]][ci_link]
 [![pub package][pub_badge]][pub_link]
+[![shorebird ci](https://api.shorebird.dev/api/v1/github/mtwichel/standard_repositories/badge.svg)](https://console.shorebird.dev/ci)
+[![codecov](https://codecov.io/gh/mtwichel/standard_repositories/graph/badge.svg?token=9GXPJKY9A8)](https://codecov.io/gh/mtwichel/standard_repositories)
 [![style: very good analysis][very_good_analysis_badge]][very_good_analysis_link]
 [![License: MIT][license_badge]][license_link]
 
@@ -13,6 +13,7 @@ If you've never heard of the concept of repositories, you can read about theme [
 ## Usage
 
 Create a repository for a particular type
+
 ```dart
 class StringRepository extends Repository<String> {
     StringRepository(super.initialValue);
@@ -24,6 +25,7 @@ class StringRepository extends Repository<String> {
 ```
 
 Use the repository in your app
+
 ```dart
 final repository = StringRepository('Hello, world!');
 final subscription = repository.stream.listen((value) {
@@ -36,36 +38,42 @@ subscription.cancel();
 ```
 
 Prints
+
 - Hello, world!
 - HELLO, WORLD!
 
 ## Available Repositories
 
 ### `Repository`
+
 A simple repository that allows you to manage a single value.
 
 Setting Values:
+
 - `value = value`: Set the value to a new value.
 
 Reading Values:
+
 - `stream`: A stream of the value.
 - `value`: The current value.
 
 ### `MultiRepository`
+
 A repository that allows you to manage a collection of values.
 
 Setting Values:
+
 - `value = values`: Set the collection to a new value.
 - `add(value)`: Add a value to the collection.
 - `addAll(values)`: Add multiple values to the collection.
 
 Reading Values:
+
 - `stream`: A stream of the collection.
 - `value`: The current value of the collection.
 - `streamWhere(test)`: A stream of the values that match the test.
 - `singleWhere(test)`: The first value that matches the test.
 - `streamSingleWhere(test)`: A stream of the first value that matches the test.
-
 
 [ci_badge]: https://github.com/mtwichel/standard_repositories/actions/workflows/standard_repositories_verify_and_test.yaml/badge.svg?branch=main&event=push
 [ci_link]: https://github.com/mtwichel/standard_repositories/actions/workflows/standard_repositories_verify_and_test.yaml
