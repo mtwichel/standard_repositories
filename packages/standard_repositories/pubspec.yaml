@@ -2,7 +2,7 @@ name: standard_repositories
 description: A new standard for repositories in your Flutter applications.
 repository: https://github.com/mtwichel/standard_repositories
 issue_tracker: https://github.com/mtwichel/standard_repositories/issues
-version: 0.0.1-dev.2
+version: 0.0.1-dev.3
 
 environment:
   sdk: ^3.5.0
@@ -10,7 +10,6 @@ environment:
 dependencies:
   collection: ^1.18.0
   hive_ce: ^2.8.0+1
-  meta: ^1.15.0
   rxdart: ^0.28.0
 
 dev_dependencies:

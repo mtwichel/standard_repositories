@@ -1,9 +1,0 @@
-name: standard_repository
-
-environment:
-  sdk: ^3.5.4
-
-dependencies:
-  mason: ^0.1.0
-  path: ^1.8.2
-  pluralize: ^0.0.8
