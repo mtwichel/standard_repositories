@@ -5,11 +5,13 @@ import 'package:standard_repositories/standard_repositories.dart';
 import 'package:test/test.dart';
 
 class MyTestingRepository extends Repository<int> {
-  MyTestingRepository({required super.initialValue});
+  MyTestingRepository({required super.initialValue})
+      : super(repositoryName: 'my_testing_repository');
 }
 
 class TestingMultiRepository extends MultiRepository<int> {
-  TestingMultiRepository({required super.initialValue});
+  TestingMultiRepository({required super.initialValue})
+      : super(repositoryName: 'testing_multi_repository');
 }
 
 void main() {
@@ -41,7 +43,7 @@ void main() {
           [0, 1, 2],
         ]),
       );
-      await repository.addValue(() => 4);
+      repository.add(4);
       await Future<void>.delayed(Duration(milliseconds: 5));
       expect(repository.value, equals([0, 1, 2, 4]));
     });
@@ -53,7 +55,7 @@ void main() {
           [0, 1, 2],
         ]),
       );
-      await repository.addAllValues(() => [4, 5, 6]);
+      repository.addAll([4, 5, 6]);
       await Future<void>.delayed(Duration(milliseconds: 5));
       expect(repository.value, equals([0, 1, 2, 4, 5, 6]));
     });

@@ -2,5 +2,6 @@
 library;
 
 export 'src/multi_repository.dart';
+export 'src/repository.dart';
 export 'src/repository_cache.dart';
-export 'src/standard_repositories.dart';
+export 'src/repository_group.dart';

@@ -10,25 +10,27 @@ typedef UniqueEvent<T> = ({T event, int id});
 /// {@template repository}
 /// A repository that manages a single value
 /// {@endtemplate}
-abstract class Repository<T> {
+class Repository<T> {
   /// {@macro repository}
   Repository({
-    required T initialValue,
+    required String repositoryName,
+    T? initialValue,
     RepositoryCache<T>? cache,
-    String? repositoryName,
   })  : _cache = cache,
         _repositoryName = repositoryName,
         _random = Random(),
-        _subject = BehaviorSubject.seeded(
-          (event: initialValue, id: -1),
-        ) {
+        _subject = initialValue != null
+            ? BehaviorSubject.seeded(
+                (event: initialValue, id: -1),
+              )
+            : BehaviorSubject<UniqueEvent<T>>() {
     _readValue();
   }
 
   final Random _random;
   final RepositoryCache<T>? _cache;
   final BehaviorSubject<UniqueEvent<T>> _subject;
-  final String? _repositoryName;
+  final String _repositoryName;
 
   UniqueEvent<T> _createEvent(T data) => (
         event: data,
@@ -51,7 +53,7 @@ abstract class Repository<T> {
       unawaited(
         _cache?.writeValue(
           value: value,
-          repositoryName: _repositoryName ?? runtimeType.toString(),
+          repositoryName: _repositoryName,
         ),
       );
     } catch (e) {
@@ -61,11 +63,15 @@ abstract class Repository<T> {
 
   Future<void> _readValue() async {
     try {
-      final value =
-          await _cache?.readValue(_repositoryName ?? runtimeType.toString());
+      final value = await _cache?.readValue(_repositoryName);
       if (value != null) {
         _subject.add(_createEvent(value));
       }
     } catch (_) {}
+  }
+
+  /// Closes the repository
+  Future<void> close() {
+    return _subject.close();
   }
 }

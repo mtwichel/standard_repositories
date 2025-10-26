@@ -15,11 +15,15 @@ If you've never heard of the concept of repositories, you can read about theme [
 Create a repository for a particular type
 
 ```dart
-class StringRepository extends Repository<String> {
-    StringRepository(super.initialValue);
+import 'package:standard_repositories/standard_repositories.dart';
+
+class MyRepository {
+    MyRepository();
+
+    final repository = Repository<String>(repositoryName: 'my_repository');
 
     void makeUpperCase() {
-        value = value.toUpperCase();
+        repository.value = repository.value.toUpperCase();
     }
 }
 ```
@@ -27,7 +31,7 @@ class StringRepository extends Repository<String> {
 Use the repository in your app
 
 ```dart
-final repository = StringRepository('Hello, world!');
+final repository = MyRepository('Hello, world!');
 final subscription = repository.stream.listen((value) {
     print(value);
 });
@@ -59,25 +63,38 @@ Reading Values:
 
 ### `MultiRepository`
 
-A repository that allows you to manage a collection of values.
+A repository with a collection of handy functions to manage a collection of values.
 
 Setting Values:
 
 - `value = values`: Set the collection to a new value.
 - `add(value)`: Add a value to the collection.
 - `addAll(values)`: Add multiple values to the collection.
+- `remove(value)`: Remove a value from the collection.
+- `removeWhere(selector)`: Remove all values that match the selector.
+- `replace(existingValue, newValue)`: Replace a value in the collection.
+- `replaceWhere(selector, value)`: Replace all values that match the selector.
 
 Reading Values:
 
 - `stream`: A stream of the collection.
 - `value`: The current value of the collection.
-- `streamWhere(test)`: A stream of the values that match the test.
-- `singleWhere(test)`: The first value that matches the test.
-- `streamSingleWhere(test)`: A stream of the first value that matches the test.
 
-[ci_badge]: https://github.com/mtwichel/standard_repositories/actions/workflows/standard_repositories_verify_and_test.yaml/badge.svg?branch=main&event=push
-[ci_link]: https://github.com/mtwichel/standard_repositories/actions/workflows/standard_repositories_verify_and_test.yaml
-[coverage_badge]: https://img.shields.io/badge/coverage-100%25-green
+### `RepositoryGroup`
+
+A group of repositories that allows you to manage a collection of repositories.
+
+```dart
+import 'package:standard_repositories/standard_repositories.dart';
+
+final repositoryGroup = RepositoryGroup<String>(
+  build: (id) => Repository<String>(repositoryName: 'my_repository_$id'),
+  );
+
+  final repository = repositoryGroup.getRepository('id1');
+  // Use repository like normal
+```
+
 [pub_badge]: https://img.shields.io/pub/v/standard_repositories.svg
 [pub_link]: https://pub.dartlang.org/packages/standard_repositories
 [license_badge]: https://img.shields.io/badge/license-MIT-blue.svg
