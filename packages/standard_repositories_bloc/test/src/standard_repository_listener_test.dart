@@ -7,7 +7,8 @@ import 'package:standard_repositories_bloc/standard_repositories_bloc.dart';
 import 'package:test/test.dart';
 
 class MyRepository extends Repository<int> {
-  MyRepository({required super.initialValue}) : super();
+  MyRepository({required super.initialValue})
+      : super(repositoryName: 'my_repository');
 
   // ignore: use_setters_to_change_properties
   void testSet(int testValue) {
